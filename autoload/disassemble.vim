@@ -24,6 +24,12 @@ function! disassemble#Disassemble(cmdmods, arg)
     else
       " TODO: Check if the complation is OK
       call system(b:compilation_command)
+      if v:shell_error
+        echohl WarningMsg
+        echomsg "Error while compiling. Check the compilation command."
+        echohl None
+        return 1
+      endif
     endif
   endif
 
