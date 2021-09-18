@@ -7,6 +7,10 @@ let b:disassemble_popup_window_id = v:false
 let b:compilation_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
 let b:do_compile = v:true
 
+function! disassemble#ConfigureCompilation() abort range
+  let b:compilation_command = input("Compilation command> ", b:compilation_command)
+endfunction
+
 function! disassemble#Disassemble(cmdmods, arg)
   if b:disassemble_popup_window_id
     call disassemble#Close()
