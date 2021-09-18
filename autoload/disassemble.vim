@@ -4,6 +4,8 @@ endif
 
 let loaded_disassemble=1
 let b:disassemble_popup_window_id = v:false
+let b:compilation_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
+let b:do_compile = v:true
 
 function! disassemble#Disassemble(cmdmods, arg)
   if b:disassemble_popup_window_id
@@ -11,8 +13,13 @@ function! disassemble#Disassemble(cmdmods, arg)
   endif
   
   if !filereadable(expand("%:r"))
-    echomsg "the file '" . expand("%:r") . "' is not readable"
-    return 1
+    if !b:do_compile
+      echomsg "the file '" . expand("%:r") . "' is not readable"
+      return 1
+    else
+      " TODO: Check if the complation is OK
+      call execute("!" . b:compilation_command)
+    endif
   endif
   
   let b:has_debug_info = execute("!file " . expand("%:r"))
