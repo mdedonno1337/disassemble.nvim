@@ -38,8 +38,8 @@ function! disassemble#Disassemble(cmdmods, arg)
   let b:asm_tmp_file = tempname()
   let b:error_tmp_file = tempname()
   
-  let objdump_command = b:objdump_command . " 1>" . b:asm_tmp_file . " 2>" . b:error_tmp_file
-  call system(objdump_command)
+  let local_objdump_command = b:objdump_command . " 1>" . b:asm_tmp_file . " 2>" . b:error_tmp_file
+  call system(local_objdump_command)
   
   " Check if the C source code is more recent than the object file
   " Recompiles the code as needed
@@ -48,7 +48,7 @@ function! disassemble#Disassemble(cmdmods, arg)
   
   if match(b:compilation_error, "is more recent than object file") != -1
     call system(b:compilation_command)
-    call system(objdump_command)
+    call system(local_objdump_command)
   endif
   let b:lines = systemlist("expand -t 4 " . b:asm_tmp_file)
   
