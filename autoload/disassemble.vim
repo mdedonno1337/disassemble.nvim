@@ -19,7 +19,9 @@ function! disassemble#Disassemble(cmdmods, arg)
 
   if !filereadable(expand("%:r"))
     if !b:do_compile
+      echohl WarningMsg
       echomsg "the file '" . expand("%:r") . "' is not readable"
+      echohl None
       return 1
     else
       " TODO: Check if the complation is OK
@@ -35,7 +37,9 @@ function! disassemble#Disassemble(cmdmods, arg)
 
   let b:has_debug_info = system("file " . expand("%:r"))
   if match(b:has_debug_info, "with debug_info") == -1
+    echohl WarningMsg
     echomsg "the file '" . expand("%:r") . "' does not have debug information"
+    echohl None
     return 1
   endif
 
@@ -69,7 +73,9 @@ function! disassemble#Disassemble(cmdmods, arg)
 
     let lines_searched += 1
     if lines_searched >= 20
+      echohl WarningMsg
       echomsg "this is line not found in the asm file ... ? contact the maintainer with an example of this situation"
+      echohl None
       return 1
     endif
   endwhile
