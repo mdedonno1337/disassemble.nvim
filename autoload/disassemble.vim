@@ -53,7 +53,7 @@ function! disassemble#Disassemble(cmdmods, arg)
   let b:lines = readfile(b:asm_tmp_file)
   
   " Search the current line
-  let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . line("."))
+  let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . line(".") . "$")
   let pos_next_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":", pos_current_line_in_asm[1] + 1)
   let b:pos = [1, 0]
   
