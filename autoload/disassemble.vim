@@ -26,6 +26,7 @@ function! disassemble#Disassemble(cmdmods, arg)
       return 1
     else
       " TODO: Check if the complation is OK
+      " TODO: Refactoring into a 'compile' function, and merge with the second call
       call system(b:compilation_command)
       if v:shell_error
         call system(b:compilation_command_default)
