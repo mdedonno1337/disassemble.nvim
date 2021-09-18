@@ -4,7 +4,8 @@ endif
 
 let loaded_disassemble=1
 let b:disassemble_popup_window_id = v:false
-let b:compilation_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
+let b:compilation_command = "make " . expand("%:r") . "_debug"
+let b:compilation_command_default = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
 let b:objdump_command = "objdump -C -l -S --no-show-raw-insn -d " . expand("%:r")
 let b:do_compile = v:true
 
@@ -27,10 +28,13 @@ function! disassemble#Disassemble(cmdmods, arg)
       " TODO: Check if the complation is OK
       call system(b:compilation_command)
       if v:shell_error
-        echohl WarningMsg
-        echomsg "Error while compiling. Check the compilation command."
-        echohl None
-        return 1
+        call system(b:compilation_command_default)
+        if v:shell_error
+          echohl WarningMsg
+          echomsg "Error while compiling. Check the compilation command."
+          echohl None
+          return 1
+        endif
       endif
     endif
   endif
