@@ -50,7 +50,7 @@ function! disassemble#Disassemble(cmdmods, arg)
     call system(b:compilation_command)
     call system(objdump_command)
   endif
-  let b:lines = readfile(b:asm_tmp_file)
+  let b:lines = systemlist("expand -t 4 " . b:asm_tmp_file)
   
   " Search the current line
   let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . line(".") . "$")
@@ -61,7 +61,7 @@ function! disassemble#Disassemble(cmdmods, arg)
   let b:lines = b:lines[pos_current_line_in_asm[1]:pos_next_line_in_asm[1] - 1]
   
   " Set the popup options
-  let width = 60
+  let width = max(map(copy(b:lines), 'strlen(v:val)'))
   let height = pos_next_line_in_asm[1] - pos_current_line_in_asm[1]
   
   " Create the popup window
