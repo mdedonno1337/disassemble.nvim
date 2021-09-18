@@ -22,17 +22,17 @@ function! disassemble#Disassemble(cmdmods, arg)
       return 1
     else
       " TODO: Check if the complation is OK
-      call execute("!" . b:compilation_command)
+      call system(b:compilation_command)
     endif
   endif
   
-  let b:has_debug_info = execute("!file " . expand("%:r"))
+  let b:has_debug_info = system("file " . expand("%:r"))
   if match(b:has_debug_info, "with debug_info") == -1
     echomsg "the file '" . expand("%:r") . "' does not have debug information"
     return 1
   endif
   
-  let b:lines = execute("!objdump -C -l -S --no-show-raw-insn -d " . expand("%:r"))
+  let b:lines = system("objdump -C -l -S --no-show-raw-insn -d " . expand("%:r"))
   let b:lines = split(b:lines, "\n")
   
   " Search the current line
