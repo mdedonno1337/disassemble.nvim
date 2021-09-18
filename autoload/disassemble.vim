@@ -53,7 +53,20 @@ function! disassemble#Disassemble(cmdmods, arg)
   let b:lines = systemlist("expand -t 4 " . b:asm_tmp_file)
 
   " Search the current line
-  let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . line(".") . "$")
+  let current_line_checked = line(".")
+  let pos_current_line_in_asm = ['', -1]
+  let lines_searched = 0
+
+  while pos_current_line_in_asm[1] < 0
+    let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . "$")
+    let current_line_checked += 1
+
+    let lines_searched += 1
+    if lines_searched >= 20
+      echomsg "this is line not found in the asm file ... ? contact the maintainer with an example of this situation"
+      return 1
+    endif
+  endwhile
   let pos_next_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":", pos_current_line_in_asm[1] + 1)
   let b:pos = [1, 0]
 
