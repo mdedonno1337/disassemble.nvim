@@ -5,6 +5,7 @@ endif
 let loaded_disassemble=1
 let b:disassemble_popup_window_id = v:false
 let b:compilation_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
+let b:objdump_command = "objdump -C -l -S --no-show-raw-insn -d " . expand("%:r")
 let b:do_compile = v:true
 
 function! disassemble#ConfigureCompilation() abort range
@@ -32,8 +33,24 @@ function! disassemble#Disassemble(cmdmods, arg)
     return 1
   endif
   
-  let b:lines = system("objdump -C -l -S --no-show-raw-insn -d " . expand("%:r"))
-  let b:lines = split(b:lines, "\n")
+  " Extract the asm code
+  " TODO: Refactoring
+  let b:asm_tmp_file = tempname()
+  let b:error_tmp_file = tempname()
+  
+  let objdump_command = b:objdump_command . " 1>" . b:asm_tmp_file . " 2>" . b:error_tmp_file
+  call system(objdump_command)
+  
+  " Check if the C source code is more recent than the object file
+  " Recompiles the code as needed
+  let b:compilation_error = readfile(b:error_tmp_file)
+  let b:compilation_error = string(b:compilation_error)
+  
+  if match(b:compilation_error, "is more recent than object file") != -1
+    call system(b:compilation_command)
+    call system(objdump_command)
+  endif
+  let b:lines = readfile(b:asm_tmp_file)
   
   " Search the current line
   let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . line("."))
