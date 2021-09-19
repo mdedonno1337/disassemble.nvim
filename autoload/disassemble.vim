@@ -41,6 +41,8 @@ function! s:setConfiguration() abort
   let b:disassemble_config["objdump"] = input("objdump command> ", b:disassemble_config["objdump"])
   let b:disassemble_config["objdump_with_redirect"] = b:disassemble_config["objdump"] . " 1>" . b:asm_tmp_file . " 2>" . b:error_tmp_file
   
+  redraw
+
   return
 endfunction
 
