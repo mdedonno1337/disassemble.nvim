@@ -60,13 +60,23 @@ function! disassemble#Disassemble()
       echohl None
       return 1
     else
-      " TODO: Check if the complation is OK
       " TODO: Refactoring into a 'compile' function, and merge with the second call
-      call system(b:disassemble_config["compilation"])
+      let compilation_result = system(b:disassemble_config["compilation"])
       if v:shell_error
         echohl WarningMsg
         echomsg "Error while compiling. Check the compilation command."
+        echo "\n"
+
+        echohl Question
+        echomsg "> " . b:disassemble_config["compilation"]
+        echo "\n"
+
+        echohl ErrorMsg
+        echo compilation_result
+        echo "\n"
+
         echohl None
+
         return 1
       endif
     endif
