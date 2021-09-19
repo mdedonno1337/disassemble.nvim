@@ -1,8 +1,3 @@
-if exists("loaded_disassemble")
-  finish
-endif
-
-let loaded_disassemble=1
 let b:disassemble_popup_window_id = v:false
 let b:compilation_command = "make " . expand("%:r") . "_debug"
 let b:compilation_command_default = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
