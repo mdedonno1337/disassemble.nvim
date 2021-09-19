@@ -1,14 +1,52 @@
-let b:disassemble_popup_window_id = v:false
-let b:compilation_command = "make " . expand("%:r") . "_debug"
-let b:compilation_command_default = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
-let b:objdump_command = "objdump -C -l -S --no-show-raw-insn -d " . expand("%:r")
-let b:do_compile = v:true
+function! s:getConfig() abort
+  " Create the variable to store the window id
+  if !exists("b:disassemble_popup_window_id")
+    let b:disassemble_popup_window_id = v:false
+  endif
+  
+  " Check if the plugin should compile automatically
+  if !exists("b:do_compile")
+    let b:do_compile = v:true
+  endif
+  
+  " Check if the plugin is already configured
+  if ! exists("b:disassemble_config")
+    call s:setConfiguration()
+  end
+endfunction
 
-function! disassemble#ConfigureCompilation() abort range
-  let b:compilation_command = input("Compilation command> ", b:compilation_command)
+function! disassemble#Config() abort range
+    call s:setConfiguration()
+endfunction
+
+function s:setConfiguration() abort
+  " Create the variables to store the temp files
+  if !exists("b:asm_tmp_file")
+    let b:asm_tmp_file = tempname()
+  endif
+  
+  if !exists("b:error_tmp_file")
+    let b:error_tmp_file = tempname()
+  endif
+  " Set the default values for the compilation and objdump commands
+  if !exists("b:disassemble_config")
+    let b:disassemble_config = {
+      \ "compilation": "gcc " . expand("%") . " -o " . expand("%:r") . " -g",
+      \ "objdump": "objdump -C -l -S --no-show-raw-insn -d " . expand("%:r")
+      \ }
+  end
+  
+  " Ask the user for the compilation and objdump extraction commands
+  let b:disassemble_config["compilation"] = input("compilation command> ", b:disassemble_config["compilation"])
+  let b:disassemble_config["objdump"] = input("objdump command> ", b:disassemble_config["objdump"])
+  let b:disassemble_config["objdump_with_redirect"] = b:disassemble_config["objdump"] . " 1>" . b:asm_tmp_file . " 2>" . b:error_tmp_file
+  
+  return
 endfunction
 
 function! disassemble#Disassemble(cmdmods, arg)
+  call s:getConfig()
+  
   if b:disassemble_popup_window_id
     call disassemble#Close()
   endif
@@ -22,15 +60,12 @@ function! disassemble#Disassemble(cmdmods, arg)
     else
       " TODO: Check if the complation is OK
       " TODO: Refactoring into a 'compile' function, and merge with the second call
-      call system(b:compilation_command)
+      call system(b:disassemble_config["compilation"])
       if v:shell_error
-        call system(b:compilation_command_default)
-        if v:shell_error
-          echohl WarningMsg
-          echomsg "Error while compiling. Check the compilation command."
-          echohl None
-          return 1
-        endif
+        echohl WarningMsg
+        echomsg "Error while compiling. Check the compilation command."
+        echohl None
+        return 1
       endif
     endif
   endif
@@ -45,11 +80,7 @@ function! disassemble#Disassemble(cmdmods, arg)
 
   " Extract the asm code
   " TODO: Refactoring
-  let b:asm_tmp_file = tempname()
-  let b:error_tmp_file = tempname()
-
-  let local_objdump_command = b:objdump_command . " 1>" . b:asm_tmp_file . " 2>" . b:error_tmp_file
-  call system(local_objdump_command)
+  call system(b:disassemble_config["objdump_with_redirect"])
 
   " Check if the C source code is more recent than the object file
   " Recompiles the code as needed
@@ -57,8 +88,8 @@ function! disassemble#Disassemble(cmdmods, arg)
   let b:compilation_error = string(b:compilation_error)
 
   if match(b:compilation_error, "is more recent than object file") != -1
-    call system(b:compilation_command)
-    call system(local_objdump_command)
+    call system(b:disassemble_config["compilation"])
+    call system(b:disassemble_config["objdump_with_redirect"])
   endif
   let b:lines = systemlist("expand -t 4 " . b:asm_tmp_file)
 
