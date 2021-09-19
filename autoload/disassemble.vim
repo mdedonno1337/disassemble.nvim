@@ -44,7 +44,7 @@ function s:setConfiguration() abort
   return
 endfunction
 
-function! disassemble#Disassemble(cmdmods, arg)
+function! disassemble#Disassemble()
   call s:getConfig()
   
   if b:disassemble_popup_window_id
