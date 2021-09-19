@@ -152,6 +152,6 @@ endfunction
 
 augroup disassembleOnCursorMoveGroup
   autocmd!
-  autocmd CursorMoved *.c call disassemble#Close()
+  autocmd CursorMoved,BufLeave *.c call disassemble#Close()
 augroup END
 
