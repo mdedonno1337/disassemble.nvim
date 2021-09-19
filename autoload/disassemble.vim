@@ -140,13 +140,18 @@ function! disassemble#Disassemble()
 endfunction
 
 function! disassemble#Close() abort
-  if get(b:, "disassemble_popup_window_id", v:false)
-    silent! call nvim_win_close(b:disassemble_popup_window_id, v:true)
-    let b:disassemble_popup_window_id = v:false
+  if get(b:,"auto_close", v:true)
+    if get(b:, "disassemble_popup_window_id", v:false)
+      silent! call nvim_win_close(b:disassemble_popup_window_id, v:true)
+      let b:disassemble_popup_window_id = v:false
+    endif
+  else
+    let b:auto_close = v:true
   endif
 endfunction
 
 function! disassemble#Focus() abort
+  let b:auto_close = v:false
   call nvim_set_current_win(b:disassemble_popup_window_id)
 endfunction
 
