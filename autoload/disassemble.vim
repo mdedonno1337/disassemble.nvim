@@ -19,7 +19,7 @@ function! disassemble#Config() abort range
     call s:setConfiguration()
 endfunction
 
-function s:setConfiguration() abort
+function! s:setConfiguration() abort
   " Create the variables to store the temp files
   if !exists("b:asm_tmp_file")
     let b:asm_tmp_file = tempname()
