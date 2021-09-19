@@ -46,6 +46,31 @@ function! s:setConfiguration() abort
   return
 endfunction
 
+function! s:do_compile() abort range
+  let compilation_result = system(b:disassemble_config["compilation"])
+  if v:shell_error
+    echohl WarningMsg
+    echomsg "Error while compiling. Check the compilation command."
+    echo "\n"
+
+    echohl Question
+    echomsg "> " . b:disassemble_config["compilation"]
+    echo "\n"
+
+    echohl ErrorMsg
+    echo compilation_result
+    echo "\n"
+
+    echohl None
+
+    return 1
+    
+  else
+    return 0
+    
+  endif
+endfunction
+
 function! disassemble#Disassemble()
   call s:getConfig()
   
@@ -60,23 +85,7 @@ function! disassemble#Disassemble()
       echohl None
       return 1
     else
-      " TODO: Refactoring into a 'compile' function, and merge with the second call
-      let compilation_result = system(b:disassemble_config["compilation"])
-      if v:shell_error
-        echohl WarningMsg
-        echomsg "Error while compiling. Check the compilation command."
-        echo "\n"
-
-        echohl Question
-        echomsg "> " . b:disassemble_config["compilation"]
-        echo "\n"
-
-        echohl ErrorMsg
-        echo compilation_result
-        echo "\n"
-
-        echohl None
-
+      if s:do_compile()
         return 1
       endif
     endif
@@ -100,7 +109,10 @@ function! disassemble#Disassemble()
   let b:compilation_error = string(b:compilation_error)
 
   if match(b:compilation_error, "is more recent than object file") != -1
-    call system(b:disassemble_config["compilation"])
+    if s:do_compile()
+      return 1
+    endif
+    
     call system(b:disassemble_config["objdump_with_redirect"])
   endif
   let b:lines = systemlist("expand -t 4 " . b:asm_tmp_file)
