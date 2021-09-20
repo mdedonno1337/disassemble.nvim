@@ -281,15 +281,23 @@ function! disassemble#DisassembleFull() abort
 
   let [pos_current_line_in_asm, pos_next_line_in_asm] = s:searchCurrentLine()
   
-  " Create the new buffer
-  let bufid = nvim_create_buf(v:true, v:true)
-  call nvim_buf_set_name(bufid, "[Disassembled] " . expand("%:r"))
-  call nvim_buf_set_lines(bufid, 0, 0, v:false, b:objdump_asm_output)
-  call nvim_buf_set_option(bufid, "filetype", "asm")
-  call nvim_buf_set_option(bufid, "readonly", v:true)
+  " Create or reuse the last buffer
+  if !get(b:, "buffer_full_asm", v:false)
+    let b:buffer_full_asm = nvim_create_buf(v:true, v:true)
+    call nvim_buf_set_name(b:buffer_full_asm, "[Disassembled] " . expand("%:r"))
+  else
+    call nvim_buf_set_option(b:buffer_full_asm, "readonly", v:false)
+  endif
+
+  " Set the content to the buffer
+  call nvim_buf_set_lines(b:buffer_full_asm, 0, 0, v:false, b:objdump_asm_output)
+  
+  " Set option for that buffer
+  call nvim_buf_set_option(b:buffer_full_asm, "filetype", "asm")
+  call nvim_buf_set_option(b:buffer_full_asm, "readonly", v:true)
 
   " Focus the buffer
-  execute 'buffer ' . bufid
+  execute 'buffer ' . b:buffer_full_asm
   
   " Open the current line
   call nvim_win_set_cursor(0, [pos_current_line_in_asm+2, 0])
