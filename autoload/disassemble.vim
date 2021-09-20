@@ -54,9 +54,9 @@ function! s:setConfiguration() abort
   end
   
   " Try to search a compilation command in the first 10 lines of the file
-  let [matched_line, matched_start] = matchstrpos(getline(1, 10), "gcc ")[1:2]
+  let [matched_line, matched_start, matched_ends] = matchstrpos(getline(1, 10), "compile: ")[1:3]
   if matched_line != -1
-    let b:disassemble_config["compilation"] = getline(matched_line + 1)[matched_start:]
+    let b:disassemble_config["compilation"] = getline(matched_line + 1)[matched_ends:]
   endif
   
   " Ask the user for the compilation and objdump extraction commands
