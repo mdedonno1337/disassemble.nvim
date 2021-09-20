@@ -194,11 +194,7 @@ function! s:searchCurrentLine() abort range
   let lines_searched = 0
 
   while pos_current_line_in_asm[1] < 0
-    let pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":" . current_line_checked . "$")
-    if pos_current_line_in_asm[1] == -1
-      " Add support for (discriminator) lines; multi-path to get to an asm line
-      let pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":" . current_line_checked . " ")
-    endif
+    let pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":" . current_line_checked . '\(\s*(discriminator \d*)\)*$')
     
     let current_line_checked += 1
 
