@@ -26,7 +26,7 @@ function! s:getConfig() abort
   endif
   
   " Check if the plugin is already configured
-  if ! exists("b:disassemble_config")
+  if !exists("b:disassemble_config")
     call s:setConfiguration()
   end
 endfunction
@@ -44,6 +44,7 @@ function! s:setConfiguration() abort
   if !exists("b:error_tmp_file")
     let b:error_tmp_file = tempname()
   endif
+
   " Set the default values for the compilation and objdump commands
   if !exists("b:disassemble_config")
     let b:disassemble_config = {
@@ -64,7 +65,9 @@ function! s:setConfiguration() abort
   endif
   
   let b:disassemble_config["objdump"] = input("objdump command> ", b:disassemble_config["objdump"])
-  let b:disassemble_config["objdump_with_redirect"] = b:disassemble_config["objdump"] . " 1>" . b:asm_tmp_file . " 2>" . b:error_tmp_file
+  let b:disassemble_config["objdump_with_redirect"] = b:disassemble_config["objdump"]
+        \ . " 1>" . b:asm_tmp_file
+        \ . " 2>" . b:error_tmp_file
   
   redraw
 
@@ -204,7 +207,7 @@ function! disassemble#Disassemble()
 
   " Search the current line
   let current_line_checked = line(".")
-  let pos_current_line_in_asm = ['', -1]
+  let pos_current_line_in_asm = ["", -1]
   let lines_searched = 0
 
   while pos_current_line_in_asm[1] < 0
@@ -226,12 +229,12 @@ function! disassemble#Disassemble()
   let b:lines = b:lines[pos_current_line_in_asm[1]:pos_next_line_in_asm[1] - 1]
 
   " Set the popup options
-  let width = max(map(copy(b:lines), 'strlen(v:val)'))
+  let width = max(map(copy(b:lines), "strlen(v:val)"))
   let height = pos_next_line_in_asm[1] - pos_current_line_in_asm[1]
 
   " Create the popup window
   let buf = nvim_create_buf(v:false, v:true)
-  let opts = {"relative": "cursor",
+  let opts = { "relative": "cursor",
         \ "width": width,
         \ "height": height,
         \ "col": 0,
