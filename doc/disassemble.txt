@@ -1,0 +1,47 @@
+*disassemble.txt*  A objdump wrapper
+
+Author:  Marco De Donno <mdedonno1337@gmail.com>
+License: GPLv3
+
+INTRODUCTION                                    *disassemble* *dissassmble.nvim*
+
+Whenever you edit a C/C++ file, a set of commands is defined to show in a
+popup or in a new buffer the disassembled assembler code of the compiled file.
+You can obviously configure the compilation process and the dump of the
+assembler code as you whish.
+
+This plugin requires the presence of the *objdump* and binary in the PATH.
+
+The configuration of the plugin is done per buffer (you can have a different
+configuration for each file open). The compilation and objdump options are
+asked when using for the first time the plugin functions.
+
+COMMANDS                                        *disassemble-commands*
+
+There commands are local to the buffer in which they work.
+
+                                                *:Disassemble*
+:Disassemble            Disassemble the current line, and show the result in a
+                        popup window. Once the popup opened, it will
+                        automatically close on *CursorMoved* or *BufLeave*
+                        events.
+
+                                                *:DisassembleFull*
+:DisassembleFull        Disassemble the current line, and show the result in a
+                        a new buffer. This new buffer is set to 'readonly'
+                        with 'filetype' set to 'asm' by default.
+
+:DisassembleConfig      Configure the compilation and objdump export for the
+                        current buffer. This configuration is stored in a *b:*
+                        variable, hence is done per buffer.
+                        
+:DisassembleFocus       Focus and move the cursor to the popup window.
+                        
+ABOUT                                           *disassemble-about*
+
+Grab the latest version or report a bug on GitHub:
+
+https://github.com/mdedonno1337/disassemble.nvim
+
+vim:tw=78:et:ft=help:norl:
+
