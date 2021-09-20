@@ -184,28 +184,10 @@ function! s:get_objdump() abort
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Main functions
+" Data processing
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! disassemble#Disassemble()
-  " Load the configuration for this buffer
-  call s:getConfig()
-  
-  " Remove or focus the popup
-  if b:disassemble_popup_window_id
-    if g:disassemble_focus_on_second_call
-      call disassemble#Focus()
-      return 0
-    else
-      call disassemble#Close()
-    endif
-  endif
-
-  " Extract the objdump content to the correct buffer variables
-  if s:get_objdump()
-    return 1
-  endif
-
+function! s:searchCurrentLine() abort range
   " Search the current line
   let current_line_checked = line(".")
   let pos_current_line_in_asm = ["", -1]
@@ -229,14 +211,42 @@ function! disassemble#Disassemble()
     endif
   endwhile
   let pos_next_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":", pos_current_line_in_asm[1] + 1)
+  
+  return [pos_current_line_in_asm[1], pos_next_line_in_asm[1]]
+endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Main functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! disassemble#Disassemble()
+  " Load the configuration for this buffer
+  call s:getConfig()
+  
+  " Remove or focus the popup
+  if b:disassemble_popup_window_id
+    if g:disassemble_focus_on_second_call
+      call disassemble#Focus()
+      return 0
+    else
+      call disassemble#Close()
+    endif
+  endif
+
+  " Extract the objdump content to the correct buffer variables
+  if s:get_objdump()
+    return 1
+  endif
+
+  let [pos_current_line_in_asm, pos_next_line_in_asm] = s:searchCurrentLine()
   let b:pos = [1, 0]
 
   " Only select the current chunk of asm
-  let b:lines = b:lines[pos_current_line_in_asm[1]:pos_next_line_in_asm[1] - 1]
+  let b:lines = b:lines[pos_current_line_in_asm:pos_next_line_in_asm - 1]
 
   " Set the popup options
   let width = max(map(copy(b:lines), "strlen(v:val)"))
-  let height = pos_next_line_in_asm[1] - pos_current_line_in_asm[1]
+  let height = pos_next_line_in_asm - pos_current_line_in_asm
 
   " Create the popup window
   let buf = nvim_create_buf(v:false, v:true)
@@ -266,28 +276,7 @@ function! disassemble#DisassembleFull() abort
     return 1
   endif
 
-  " Search the current line
-  let current_line_checked = line(".")
-  let pos_current_line_in_asm = ["", -1]
-  let lines_searched = 0
-
-  while pos_current_line_in_asm[1] < 0
-    let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . "$")
-    if pos_current_line_in_asm[1] == -1
-      " Add support for (discriminator) lines; multi-path to get to an asm line
-      let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . " ")
-    endif
-    
-    let current_line_checked += 1
-
-    let lines_searched += 1
-    if lines_searched >= 20
-      echohl WarningMsg
-      echomsg "this is line not found in the asm file ... ? contact the maintainer with an example of this situation"
-      echohl None
-      return 1
-    endif
-  endwhile
+  let [pos_current_line_in_asm, pos_next_line_in_asm] = s:searchCurrentLine()
   
   " Create the new buffer
   let bufid = nvim_create_buf(v:true, v:true)
@@ -300,7 +289,7 @@ function! disassemble#DisassembleFull() abort
   execute 'buffer ' . bufid
   
   " Open the current line
-  call nvim_win_set_cursor(0, [pos_current_line_in_asm[1]+2, 0])
+  call nvim_win_set_cursor(0, [pos_current_line_in_asm+2, 0])
 
 endfunction
 
