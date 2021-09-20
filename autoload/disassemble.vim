@@ -1,3 +1,7 @@
+if !exists("g:disassemble_focus_on_second_call")
+  let g:disassemble_focus_on_second_call = v:false
+end
+
 function! s:getConfig() abort
   " Create the variable to store the window id
   if !exists("b:disassemble_popup_window_id")
@@ -150,9 +154,14 @@ function! disassemble#Disassemble()
   " Load the configuration for this buffer
   call s:getConfig()
   
-  " Remove any existing popup
+  " Remove or focus the popup
   if b:disassemble_popup_window_id
-    call disassemble#Close()
+    if get(g:, "disassemble_focus_on_second_call", v:false)
+      call disassemble#Focus()
+      return 0
+    else
+      call disassemble#Close()
+    endif
   endif
 
   " Extract the objdump content to the correct buffer variables
