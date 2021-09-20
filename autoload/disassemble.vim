@@ -213,6 +213,11 @@ function! disassemble#Disassemble()
 
   while pos_current_line_in_asm[1] < 0
     let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . "$")
+    if pos_current_line_in_asm[1] == -1
+      " Add support for (discriminator) lines; multi-path to get to an asm line
+      let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . " ")
+    endif
+    
     let current_line_checked += 1
 
     let lines_searched += 1
@@ -268,6 +273,11 @@ function! disassemble#DisassembleFull() abort
 
   while pos_current_line_in_asm[1] < 0
     let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . "$")
+    if pos_current_line_in_asm[1] == -1
+      " Add support for (discriminator) lines; multi-path to get to an asm line
+      let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . " ")
+    endif
+    
     let current_line_checked += 1
 
     let lines_searched += 1
