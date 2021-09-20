@@ -111,7 +111,7 @@ endfunction
 function! s:do_objdump() abort
   " Reset the output variables
   let b:compilation_error = v:false
-  let b:lines = v:false
+  let b:objdump_asm_output = v:false
   
   " Extract the objdump information to the `error_tmp_file` and `asm_tmp_file` files
   call system(b:disassemble_config["objdump_with_redirect"])
@@ -129,7 +129,7 @@ function! s:do_objdump() abort
   endif
   
   " Get the content of the objdump file
-  let b:lines = systemlist("expand -t 4 " . b:asm_tmp_file)
+  let b:objdump_asm_output = systemlist("expand -t 4 " . b:asm_tmp_file)
   if v:shell_error
     return 1
   endif
@@ -194,10 +194,10 @@ function! s:searchCurrentLine() abort range
   let lines_searched = 0
 
   while pos_current_line_in_asm[1] < 0
-    let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . "$")
+    let pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":" . current_line_checked . "$")
     if pos_current_line_in_asm[1] == -1
       " Add support for (discriminator) lines; multi-path to get to an asm line
-      let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . " ")
+      let pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":" . current_line_checked . " ")
     endif
     
     let current_line_checked += 1
@@ -210,7 +210,7 @@ function! s:searchCurrentLine() abort range
       return 1
     endif
   endwhile
-  let pos_next_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":", pos_current_line_in_asm[1] + 1)
+  let pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":", pos_current_line_in_asm[1] + 1)
   
   return [pos_current_line_in_asm[1], pos_next_line_in_asm[1]]
 endfunction
@@ -241,10 +241,10 @@ function! disassemble#Disassemble()
   let [pos_current_line_in_asm, pos_next_line_in_asm] = s:searchCurrentLine()
 
   " Only select the current chunk of asm
-  let b:lines = b:lines[pos_current_line_in_asm:pos_next_line_in_asm - 1]
+  let b:objdump_asm_output = b:objdump_asm_output[pos_current_line_in_asm:pos_next_line_in_asm - 1]
 
   " Set the popup options
-  let width = max(map(copy(b:lines), "strlen(v:val)"))
+  let width = max(map(copy(b:objdump_asm_output), "strlen(v:val)"))
   let height = pos_next_line_in_asm - pos_current_line_in_asm
 
   " Create the popup window
@@ -261,7 +261,7 @@ function! disassemble#Disassemble()
 
   let b:disassemble_popup_window_id = nvim_open_win(buf, 0, opts)
 
-  call nvim_buf_set_lines(buf, 0, height, v:false, b:lines)
+  call nvim_buf_set_lines(buf, 0, height, v:false, b:objdump_asm_output)
   call nvim_buf_set_option(buf, "filetype", "asm")
   call nvim_win_set_cursor(b:disassemble_popup_window_id, [1, 0])
 endfunction
@@ -280,7 +280,7 @@ function! disassemble#DisassembleFull() abort
   " Create the new buffer
   let bufid = nvim_create_buf(v:true, v:true)
   call nvim_buf_set_name(bufid, "[Disassembled] " . expand("%:r"))
-  call nvim_buf_set_lines(bufid, 0, 0, v:false, b:lines)
+  call nvim_buf_set_lines(bufid, 0, 0, v:false, b:objdump_asm_output)
   call nvim_buf_set_option(bufid, "filetype", "asm")
   call nvim_buf_set_option(bufid, "readonly", v:true)
 
