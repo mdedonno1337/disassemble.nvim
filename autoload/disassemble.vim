@@ -268,6 +268,11 @@ function! disassemble#Disassemble()
   call nvim_buf_set_lines(buf, 0, height, v:false, b:objdump_asm_output)
   call nvim_buf_set_option(buf, "filetype", "asm")
   call nvim_win_set_cursor(b:disassemble_popup_window_id, [1, 0])
+
+  augroup disassembleOnCursorMoveGroup
+    autocmd!
+    autocmd CursorMoved,BufLeave *.c,*.cpp call disassemble#Close()
+  augroup END
 endfunction
 
 function! disassemble#DisassembleFull() abort
@@ -309,6 +314,11 @@ function! disassemble#Close() abort
     if get(b:, "disassemble_popup_window_id", v:false)
       silent! call nvim_win_close(b:disassemble_popup_window_id, v:true)
       let b:disassemble_popup_window_id = v:false
+
+      " Remove the autocmd for the files for performances reasons
+      augroup disassembleOnCursorMoveGroup
+        autocmd!
+      augroup END
     endif
   else
     let b:auto_close = v:true
@@ -325,13 +335,4 @@ function! disassemble#Focus() abort
     echohl None
   endif
 endfunction
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Autocommands
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-augroup disassembleOnCursorMoveGroup
-  autocmd!
-  autocmd CursorMoved,BufLeave *.c,*.cpp call disassemble#Close()
-augroup END
 
