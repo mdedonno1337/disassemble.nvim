@@ -71,13 +71,38 @@ function! s:do_compile() abort range
   endif
 endfunction
 
-function! disassemble#Disassemble()
-  call s:getConfig()
+function! s:do_objdump() abort
+  " Reset the output variables
+  let b:compilation_error = v:false
+  let b:lines = v:false
   
-  if b:disassemble_popup_window_id
-    call disassemble#Close()
+  " Extract the objdump information to the `error_tmp_file` and `asm_tmp_file` files
+  call system(b:disassemble_config["objdump_with_redirect"])
+  if v:shell_error
+    return 1
   endif
+  
+  " Get the error from the temporary file
+  let b:compilation_error = readfile(b:error_tmp_file)
+  let b:compilation_error = string(b:compilation_error)
+  
+  " Return the error code 128 if the C file is more recent that the ELF file
+  if match(b:compilation_error, "is more recent than object file") != -1
+    return 128
+  endif
+  
+  " Get the content of the objdump file
+  let b:lines = systemlist("expand -t 4 " . b:asm_tmp_file)
+  if v:shell_error
+    return 1
+  endif
+  
+  " Return OK
+  return 0
+endfunction
 
+function! s:get_objdump() abort
+  " Check the presence of the ELF file
   if !filereadable(expand("%:r"))
     if !b:do_compile
       echohl WarningMsg
@@ -90,7 +115,8 @@ function! disassemble#Disassemble()
       endif
     endif
   endif
-
+  
+  " Check if the binary file has debug informations
   let b:has_debug_info = system("file " . expand("%:r"))
   if match(b:has_debug_info, "with debug_info") == -1
     echohl WarningMsg
@@ -98,24 +124,41 @@ function! disassemble#Disassemble()
     echohl None
     return 1
   endif
-
-  " Extract the asm code
-  " TODO: Refactoring
-  call system(b:disassemble_config["objdump_with_redirect"])
-
+  
+  " Get the objdump content
+  let objdump_return_code = s:do_objdump()
+  
+  " Unknown error in the function
+  if objdump_return_code == 1
+    return 1
+    
   " Check if the C source code is more recent than the object file
-  " Recompiles the code as needed
-  let b:compilation_error = readfile(b:error_tmp_file)
-  let b:compilation_error = string(b:compilation_error)
-
-  if match(b:compilation_error, "is more recent than object file") != -1
+  " Try to recompile and redump the objdump content
+  elseif objdump_return_code == 128
     if s:do_compile()
       return 1
     endif
+    return s:get_objdump()
     
-    call system(b:disassemble_config["objdump_with_redirect"])
+  else
+    return 0
+    
   endif
-  let b:lines = systemlist("expand -t 4 " . b:asm_tmp_file)
+endfunction
+
+function! disassemble#Disassemble()
+  " Load the configuration for this buffer
+  call s:getConfig()
+  
+  " Remove any existing popup
+  if b:disassemble_popup_window_id
+    call disassemble#Close()
+  endif
+
+  " Extract the objdump content to the correct buffer variables
+  if s:get_objdump()
+    return 1
+  endif
 
   " Search the current line
   let current_line_checked = line(".")
