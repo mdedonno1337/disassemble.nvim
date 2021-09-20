@@ -206,8 +206,16 @@ function! s:searchCurrentLine() abort range
       return 1
     endif
   endwhile
+  
+  " Search the next occurence of the filename
   let pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":", pos_current_line_in_asm[1] + 1)
   
+  " If not found, it's probably because this code block is at the end of a
+  " section. This will search the start of the next section.
+  if pos_next_line_in_asm[1] == -1
+    let pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, '\v^\d\w+\s*', pos_current_line_in_asm[1] + 1)
+  endif
+
   return [pos_current_line_in_asm[1], pos_next_line_in_asm[1]]
 endfunction
 
