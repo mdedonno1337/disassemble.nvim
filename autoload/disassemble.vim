@@ -1,3 +1,7 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Configuration
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 if !exists("g:disassemble_focus_on_second_call")
   let g:disassemble_focus_on_second_call = v:false
 end
@@ -5,6 +9,10 @@ end
 if !exists("g:disassemble_do_compile")
   let g:disassemble_do_compile = v:true
 end
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Configuration functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:getConfig() abort
   " Create the variable to store the window id
@@ -57,6 +65,10 @@ function! s:setConfiguration() abort
   return
 endfunction
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Compilation function
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 function! s:do_compile() abort range
   let compilation_result = system(b:disassemble_config["compilation"])
   if v:shell_error
@@ -81,6 +93,10 @@ function! s:do_compile() abort range
     
   endif
 endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Objectdump extraction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:do_objdump() abort
   " Reset the output variables
@@ -156,6 +172,10 @@ function! s:get_objdump() abort
     
   endif
 endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Main functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! disassemble#Disassemble()
   " Load the configuration for this buffer
@@ -237,6 +257,10 @@ function! disassemble#Focus() abort
   let b:auto_close = v:false
   call nvim_set_current_win(b:disassemble_popup_window_id)
 endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Autocommands
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 augroup disassembleOnCursorMoveGroup
   autocmd!
