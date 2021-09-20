@@ -261,6 +261,24 @@ function! disassemble#DisassembleFull() abort
     return 1
   endif
 
+  " Search the current line
+  let current_line_checked = line(".")
+  let pos_current_line_in_asm = ["", -1]
+  let lines_searched = 0
+
+  while pos_current_line_in_asm[1] < 0
+    let pos_current_line_in_asm = matchstrpos(b:lines, expand("%:p") . ":" . current_line_checked . "$")
+    let current_line_checked += 1
+
+    let lines_searched += 1
+    if lines_searched >= 20
+      echohl WarningMsg
+      echomsg "this is line not found in the asm file ... ? contact the maintainer with an example of this situation"
+      echohl None
+      return 1
+    endif
+  endwhile
+  
   " Create the new buffer
   let bufid = nvim_create_buf(v:true, v:true)
   call nvim_buf_set_name(bufid, "[Disassembled] " . expand("%:r"))
@@ -270,6 +288,9 @@ function! disassemble#DisassembleFull() abort
 
   " Focus the buffer
   execute 'buffer ' . bufid
+  
+  " Open the current line
+  call nvim_win_set_cursor(0, [pos_current_line_in_asm[1]+2, 0])
 
 endfunction
 
