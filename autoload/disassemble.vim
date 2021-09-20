@@ -70,6 +70,7 @@ function! s:setConfiguration() abort
         \ . " 2>" . b:error_tmp_file
   
   redraw
+  echomsg "Disassemble.nvim configured for this buffer!"
 
   return
 endfunction
