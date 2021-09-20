@@ -252,6 +252,27 @@ function! disassemble#Disassemble()
   call nvim_win_set_cursor(b:disassemble_popup_window_id, b:pos)
 endfunction
 
+function! disassemble#DisassembleFull() abort
+  " Load the configuration for this buffer
+  call s:getConfig()
+
+  " Extract the objdump content to the correct buffer variables
+  if s:get_objdump()
+    return 1
+  endif
+
+  " Create the new buffer
+  let bufid = nvim_create_buf(v:true, v:true)
+  call nvim_buf_set_name(bufid, "[Disassembled] " . expand("%:r"))
+  call nvim_buf_set_lines(bufid, 0, 0, v:false, b:lines)
+  call nvim_buf_set_option(bufid, "filetype", "asm")
+  call nvim_buf_set_option(bufid, "readonly", v:true)
+
+  " Focus the buffer
+  execute 'buffer ' . bufid
+
+endfunction
+
 function! disassemble#Close() abort
   if get(b:,"auto_close", v:true)
     if get(b:, "disassemble_popup_window_id", v:false)
