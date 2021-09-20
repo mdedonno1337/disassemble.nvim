@@ -239,7 +239,6 @@ function! disassemble#Disassemble()
   endif
 
   let [pos_current_line_in_asm, pos_next_line_in_asm] = s:searchCurrentLine()
-  let b:pos = [1, 0]
 
   " Only select the current chunk of asm
   let b:lines = b:lines[pos_current_line_in_asm:pos_next_line_in_asm - 1]
@@ -264,7 +263,7 @@ function! disassemble#Disassemble()
 
   call nvim_buf_set_lines(buf, 0, height, v:false, b:lines)
   call nvim_buf_set_option(buf, "filetype", "asm")
-  call nvim_win_set_cursor(b:disassemble_popup_window_id, b:pos)
+  call nvim_win_set_cursor(b:disassemble_popup_window_id, [1, 0])
 endfunction
 
 function! disassemble#DisassembleFull() abort
