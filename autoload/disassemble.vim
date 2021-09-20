@@ -305,7 +305,13 @@ endfunction
 
 function! disassemble#Focus() abort
   let b:auto_close = v:false
-  call nvim_set_current_win(b:disassemble_popup_window_id)
+  if get(b:, "disassemble_popup_window_id", v:false)
+    silent! call nvim_set_current_win(b:disassemble_popup_window_id)
+  else
+    echohl WarningMsg
+    echomsg "No popup at the moment"
+    echohl None
+  endif
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
