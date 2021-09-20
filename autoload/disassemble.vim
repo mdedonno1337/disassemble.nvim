@@ -49,7 +49,7 @@ function! s:setConfiguration() abort
   if !exists("b:disassemble_config")
     let b:disassemble_config = {
           \ "compilation": "gcc " . expand("%") . " -o " . expand("%:r") . " -g",
-          \ "objdump": "objdump --demangle --line-numbers --file-headers --source --no-show-raw-insn --disassemble " . expand("%:r")
+          \ "objdump": "objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")
           \ }
   end
   
