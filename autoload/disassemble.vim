@@ -2,6 +2,10 @@ if !exists("g:disassemble_focus_on_second_call")
   let g:disassemble_focus_on_second_call = v:false
 end
 
+if !exists("g:disassemble_do_compile")
+  let g:disassemble_do_compile = v:true
+end
+
 function! s:getConfig() abort
   " Create the variable to store the window id
   if !exists("b:disassemble_popup_window_id")
@@ -10,7 +14,7 @@ function! s:getConfig() abort
   
   " Check if the plugin should compile automatically
   if !exists("b:do_compile")
-    let b:do_compile = v:true
+    let b:do_compile = g:disassemble_do_compile
   endif
   
   " Check if the plugin is already configured
@@ -41,7 +45,10 @@ function! s:setConfiguration() abort
   end
   
   " Ask the user for the compilation and objdump extraction commands
-  let b:disassemble_config["compilation"] = input("compilation command> ", b:disassemble_config["compilation"])
+  if get(b:, "do_compile")
+    let b:disassemble_config["compilation"] = input("compilation command> ", b:disassemble_config["compilation"])
+  endif
+  
   let b:disassemble_config["objdump"] = input("objdump command> ", b:disassemble_config["objdump"])
   let b:disassemble_config["objdump_with_redirect"] = b:disassemble_config["objdump"] . " 1>" . b:asm_tmp_file . " 2>" . b:error_tmp_file
   
