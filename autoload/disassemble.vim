@@ -193,7 +193,7 @@ function! disassemble#Disassemble()
   
   " Remove or focus the popup
   if b:disassemble_popup_window_id
-    if get(g:, "disassemble_focus_on_second_call", v:false)
+    if g:disassemble_focus_on_second_call
       call disassemble#Focus()
       return 0
     else
