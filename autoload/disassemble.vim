@@ -24,7 +24,7 @@ function! s:getConfig() abort
 endfunction
 
 function! disassemble#Config() abort range
-    call s:setConfiguration()
+  call s:setConfiguration()
 endfunction
 
 function! s:setConfiguration() abort
@@ -39,9 +39,9 @@ function! s:setConfiguration() abort
   " Set the default values for the compilation and objdump commands
   if !exists("b:disassemble_config")
     let b:disassemble_config = {
-      \ "compilation": "gcc " . expand("%") . " -o " . expand("%:r") . " -g",
-      \ "objdump": "objdump -C -l -S --no-show-raw-insn -d " . expand("%:r")
-      \ }
+          \ "compilation": "gcc " . expand("%") . " -o " . expand("%:r") . " -g",
+          \ "objdump": "objdump -C -l -S --no-show-raw-insn -d " . expand("%:r")
+          \ }
   end
   
   " Ask the user for the compilation and objdump extraction commands
