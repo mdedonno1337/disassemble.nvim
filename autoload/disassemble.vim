@@ -159,11 +159,19 @@ function! s:get_objdump() abort
   elseif objdump_return_code == 128
     " Check if the C source code is more recent than the object file
     " Try to recompile and redump the objdump content
-    if s:do_compile()
+    if !b:enable_compilation
+      echohl WarningMsg
+      echomsg "Automatic compilation is disabled for this buffer; we can not have a up-to-date ELF file to work on..."
+      echohl None
       return 1
+      
+    else
+      if s:do_compile()
+        return 1
+      endif
+      return s:get_objdump()
     endif
-    return s:get_objdump()
-
+    
   else
     return 0
 
