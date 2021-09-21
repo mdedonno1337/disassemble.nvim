@@ -46,6 +46,12 @@ function! s:setConfiguration() abort
     let b:disassemble_config["compilation"] = getline(l:matched_line + 1)[l:matched_ends:]
   endif
 
+  " Try to search a objdump command in the first 10 lines of the file
+  let [l:matched_line, l:matched_start, l:matched_ends] = matchstrpos(getline(1, 10), "objdump: ")[1:3]
+  if l:matched_line != -1
+    let b:disassemble_config["objdump"] = getline(l:matched_line + 1)[l:matched_ends:]
+  endif
+  
   " Ask the user for the compilation and objdump extraction commands
   if b:enable_compilation
     let b:disassemble_config["compilation"] = input("compilation command> ", b:disassemble_config["compilation"])
