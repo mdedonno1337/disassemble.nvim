@@ -5,9 +5,6 @@
 let g:disassemble_focus_on_second_call = get(g:, "disassemble_focus_on_second_call", v:false)
 let g:disassemble_enable_compilation = get(g:, "disassemble_enable_compilation", v:true)
 
-let s:objdump_default_command = "objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")
-let s:gcc_default_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Configuration functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -33,11 +30,14 @@ function! s:setConfiguration() abort
   " Create the variables to store the temp files
   let b:asm_tmp_file = get(b:, "asm_tmp_file", tempname())
   let b:error_tmp_file = get(b:, "error_tmp_file", tempname())
+  
+  let l:default_compilation_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
+  let l:default_objdump_command = "objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")
 
   " Set the default values for the compilation and objdump commands
   let b:disassemble_config = get( b:, "disassemble_config", {
-        \ "compilation": s:gcc_default_command,
-        \ "objdump": s:objdump_default_command
+        \ "compilation": l:default_compilation_command,
+        \ "objdump": l:default_objdump_command
         \ } )
 
   " Try to search a compilation command in the first 10 lines of the file
