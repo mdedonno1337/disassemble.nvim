@@ -2,13 +2,11 @@
 " Configuration
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-if !exists("g:disassemble_focus_on_second_call")
-  let g:disassemble_focus_on_second_call = v:false
-end
+let g:disassemble_focus_on_second_call = get(g:, "disassemble_focus_on_second_call", v:false)
+let g:disassemble_do_compile = get(g:, "disassemble_do_compile", v:true)
 
-if !exists("g:disassemble_do_compile")
-  let g:disassemble_do_compile = v:true
-end
+let s:objdump_default_command = "objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")
+let s:gcc_default_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Configuration functions
@@ -16,19 +14,15 @@ end
 
 function! s:getConfig() abort
   " Create the variable to store the window id
-  if !exists("b:disassemble_popup_window_id")
-    let b:disassemble_popup_window_id = v:false
-  endif
+  let b:disassemble_popup_window_id = get(b:, "disassemble_popup_window_id", v:false)
   
   " Check if the plugin should compile automatically
-  if !exists("b:do_compile")
-    let b:do_compile = g:disassemble_do_compile
-  endif
+  let b:do_compile = get(b:, "do_compile", g:disassemble_do_compile)
   
   " Check if the plugin is already configured
   if !exists("b:disassemble_config")
     call s:setConfiguration()
-  end
+  endif
 endfunction
 
 function! disassemble#Config() abort range
@@ -37,21 +31,14 @@ endfunction
 
 function! s:setConfiguration() abort
   " Create the variables to store the temp files
-  if !exists("b:asm_tmp_file")
-    let b:asm_tmp_file = tempname()
-  endif
-  
-  if !exists("b:error_tmp_file")
-    let b:error_tmp_file = tempname()
-  endif
+  let b:asm_tmp_file = get(b:, "asm_tmp_file", tempname())
+  let b:error_tmp_file = get(b:, "error_tmp_file", tempname())
 
   " Set the default values for the compilation and objdump commands
-  if !exists("b:disassemble_config")
-    let b:disassemble_config = {
-          \ "compilation": "gcc " . expand("%") . " -o " . expand("%:r") . " -g",
-          \ "objdump": "objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")
-          \ }
-  end
+  let b:disassemble_config = get( b:, "disassemble_config", {
+              \ "compilation": s:gcc_default_command,
+              \ "objdump": s:objdump_default_command
+              \ } )
   
   " Try to search a compilation command in the first 10 lines of the file
   let [matched_line, matched_start, matched_ends] = matchstrpos(getline(1, 10), "compile: ")[1:3]
@@ -60,7 +47,7 @@ function! s:setConfiguration() abort
   endif
   
   " Ask the user for the compilation and objdump extraction commands
-  if get(b:, "do_compile")
+  if b:do_compile
     let b:disassemble_config["compilation"] = input("compilation command> ", b:disassemble_config["compilation"])
   endif
   
