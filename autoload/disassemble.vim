@@ -25,7 +25,7 @@ function! s:getConfig() abort
   endif
 endfunction
 
-function! disassemble#Config() abort range
+function! disassemble#Config() abort
   call s:setConfiguration()
 endfunction
 
@@ -66,7 +66,7 @@ endfunction
 " Compilation function
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:do_compile() abort range
+function! s:do_compile() abort
   let compilation_result = system(b:disassemble_config["compilation"])
   if v:shell_error
     echohl WarningMsg
@@ -174,7 +174,7 @@ endfunction
 " Data processing
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:searchCurrentLine() abort range
+function! s:searchCurrentLine() abort
   " Search the current line
   let current_line_checked = line(".")
   let pos_current_line_in_asm = ["", -1]
