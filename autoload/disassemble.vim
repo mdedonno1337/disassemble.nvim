@@ -41,9 +41,9 @@ function! s:setConfiguration() abort
         \ } )
 
   " Try to search a compilation command in the first 10 lines of the file
-  let [matched_line, matched_start, matched_ends] = matchstrpos(getline(1, 10), "compile: ")[1:3]
-  if matched_line != -1
-    let b:disassemble_config["compilation"] = getline(matched_line + 1)[matched_ends:]
+  let [l:matched_line, l:matched_start, l:matched_ends] = matchstrpos(getline(1, 10), "compile: ")[1:3]
+  if l:matched_line != -1
+    let b:disassemble_config["compilation"] = getline(l:matched_line + 1)[l:matched_ends:]
   endif
 
   " Ask the user for the compilation and objdump extraction commands
@@ -67,7 +67,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:do_compile() abort
-  let compilation_result = system(b:disassemble_config["compilation"])
+  let l:compilation_result = system(b:disassemble_config["compilation"])
   if v:shell_error
     echohl WarningMsg
     echomsg "Error while compiling. Check the compilation command."
@@ -78,7 +78,7 @@ function! s:do_compile() abort
     echo "\n"
 
     echohl ErrorMsg
-    echo compilation_result
+    echo l:compilation_result
     echo "\n"
 
     echohl None
@@ -150,13 +150,13 @@ function! s:get_objdump() abort
   endif
 
   " Get the objdump content
-  let objdump_return_code = s:do_objdump()
+  let l:objdump_return_code = s:do_objdump()
 
-  if objdump_return_code == 1
+  if l:objdump_return_code == 1
     " Unknown error in the function
     return 1
 
-  elseif objdump_return_code == 128
+  elseif l:objdump_return_code == 128
     " Check if the C source code is more recent than the object file
     " Try to recompile and redump the objdump content
     if !b:enable_compilation
@@ -184,17 +184,17 @@ endfunction
 
 function! s:searchCurrentLine() abort
   " Search the current line
-  let current_line_checked = line(".")
-  let pos_current_line_in_asm = ["", -1]
-  let lines_searched = 0
+  let l:current_line_checked = line(".")
+  let l:pos_current_line_in_asm = ["", -1]
+  let l:lines_searched = 0
 
-  while pos_current_line_in_asm[1] < 0
-    let pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":" . current_line_checked . '\(\s*(discriminator \d*)\)*$')
+  while l:pos_current_line_in_asm[1] < 0
+    let l:pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":" . l:current_line_checked . '\(\s*(discriminator \d*)\)*$')
 
-    let current_line_checked += 1
+    let l:current_line_checked += 1
 
-    let lines_searched += 1
-    if lines_searched >= 20
+    let l:lines_searched += 1
+    if l:lines_searched >= 20
       echohl WarningMsg
       echomsg "this is line not found in the asm file ... ? contact the maintainer with an example of this situation"
       echohl None
@@ -203,15 +203,15 @@ function! s:searchCurrentLine() abort
   endwhile
 
   " Search the next occurence of the filename
-  let pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":", pos_current_line_in_asm[1] + 1)
+  let l:pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":", l:pos_current_line_in_asm[1] + 1)
 
   " If not found, it's probably because this code block is at the end of a
   " section. This will search the start of the next section.
-  if pos_next_line_in_asm[1] == -1
-    let pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, '\v^\x+\s*', pos_current_line_in_asm[1] + 1)
+  if l:pos_next_line_in_asm[1] == -1
+    let l:pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, '\v^\x+\s*', l:pos_current_line_in_asm[1] + 1)
   endif
 
-  return [pos_current_line_in_asm[1], pos_next_line_in_asm[1]]
+  return [l:pos_current_line_in_asm[1], l:pos_next_line_in_asm[1]]
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -237,20 +237,20 @@ function! disassemble#Disassemble()
     return 1
   endif
 
-  let [pos_current_line_in_asm, pos_next_line_in_asm] = s:searchCurrentLine()
+  let [l:pos_current_line_in_asm, l:pos_next_line_in_asm] = s:searchCurrentLine()
 
   " Only select the current chunk of asm
-  let b:objdump_asm_output = b:objdump_asm_output[pos_current_line_in_asm:pos_next_line_in_asm - 1]
+  let b:objdump_asm_output = b:objdump_asm_output[l:pos_current_line_in_asm:l:pos_next_line_in_asm - 1]
 
   " Set the popup options
-  let width = max(map(copy(b:objdump_asm_output), "strlen(v:val)"))
-  let height = pos_next_line_in_asm - pos_current_line_in_asm
+  let l:width = max(map(copy(b:objdump_asm_output), "strlen(v:val)"))
+  let l:height = l:pos_next_line_in_asm - l:pos_current_line_in_asm
 
   " Create the popup window
-  let buf = nvim_create_buf(v:false, v:true)
-  let opts = { "relative": "cursor",
-        \ "width": width,
-        \ "height": height,
+  let l:buf = nvim_create_buf(v:false, v:true)
+  let l:opts = { "relative": "cursor",
+        \ "width": l:width,
+        \ "height": l:height,
         \ "col": 0,
         \ "row": 1,
         \ "anchor": "NW",
@@ -258,10 +258,10 @@ function! disassemble#Disassemble()
         \ "focusable": v:true,
         \ }
 
-  let b:disassemble_popup_window_id = nvim_open_win(buf, 0, opts)
+  let b:disassemble_popup_window_id = nvim_open_win(l:buf, 0, l:opts)
 
-  call nvim_buf_set_lines(buf, 0, height, v:false, b:objdump_asm_output)
-  call nvim_buf_set_option(buf, "filetype", "asm")
+  call nvim_buf_set_lines(l:buf, 0, l:height, v:false, b:objdump_asm_output)
+  call nvim_buf_set_option(l:buf, "filetype", "asm")
   call nvim_win_set_cursor(b:disassemble_popup_window_id, [1, 0])
 
   augroup disassembleOnCursorMoveGroup
@@ -279,7 +279,7 @@ function! disassemble#DisassembleFull() abort
     return 1
   endif
 
-  let [pos_current_line_in_asm, pos_next_line_in_asm] = s:searchCurrentLine()
+  let [l:pos_current_line_in_asm, l:pos_next_line_in_asm] = s:searchCurrentLine()
 
   " Create or reuse the last buffer
   if !get(b:, "buffer_full_asm", v:false)
@@ -300,7 +300,7 @@ function! disassemble#DisassembleFull() abort
   execute 'buffer ' . b:buffer_full_asm
 
   " Open the current line
-  call nvim_win_set_cursor(0, [pos_current_line_in_asm+2, 0])
+  call nvim_win_set_cursor(0, [l:pos_current_line_in_asm+2, 0])
 
 endfunction
 
