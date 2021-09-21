@@ -3,7 +3,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:disassemble_focus_on_second_call = get(g:, "disassemble_focus_on_second_call", v:false)
-let g:disassemble_do_compile = get(g:, "disassemble_do_compile", v:true)
+let g:disassemble_enable_compilation = get(g:, "disassemble_enable_compilation", v:true)
 
 let s:objdump_default_command = "objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")
 let s:gcc_default_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
@@ -17,7 +17,7 @@ function! s:getConfig() abort
   let b:disassemble_popup_window_id = get(b:, "disassemble_popup_window_id", v:false)
 
   " Check if the plugin should compile automatically
-  let b:do_compile = get(b:, "do_compile", g:disassemble_do_compile)
+  let b:enable_compilation = get(b:, "enable_compilation", g:disassemble_enable_compilation)
 
   " Check if the plugin is already configured
   if !exists("b:disassemble_config")
@@ -47,7 +47,7 @@ function! s:setConfiguration() abort
   endif
 
   " Ask the user for the compilation and objdump extraction commands
-  if b:do_compile
+  if b:enable_compilation
     let b:disassemble_config["compilation"] = input("compilation command> ", b:disassemble_config["compilation"])
   endif
 
@@ -128,7 +128,7 @@ endfunction
 function! s:get_objdump() abort
   " Check the presence of the ELF file
   if !filereadable(expand("%:r"))
-    if !b:do_compile
+    if !b:enable_compilation
       echohl WarningMsg
       echomsg "the file '" . expand("%:r") . "' is not readable"
       echohl None
