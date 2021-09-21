@@ -1,4 +1,4 @@
-*disassemble.txt*  A objdump wrapper
+*disassemble.txt*  An easy popup disassembler for C/C++ code
 
 Author:  Marco De Donno <mdedonno1337@gmail.com>
 License: GPLv3
@@ -10,11 +10,48 @@ popup or in a new buffer the disassembled assembler code of the compiled file.
 You can obviously configure the compilation process and the dump of the
 assembler code as you whish.
 
-This plugin requires the presence of the *objdump* and binary in the PATH.
+With the default configuration, this plugin requires the presence of |objdump|
+in the PATH. This plugin also requires the commands |file| and |expand|, but
+they should be installed with the basic utilities.
+
+By default, this plugin enables the automatic compilation if the compiled file
+is not present on disk or if the source code is more recent thant the compiled
+file. This default behaviour requires a compiler on the system, but can be
+disabled with the `let g:disassemble_enable_compilation=v:false` command in
+your vimrc configuration.
+
+CONFIGURATION
 
 The configuration of the plugin is done per buffer (you can have a different
 configuration for each file open). The compilation and objdump options are
 asked when using for the first time the plugin functions.
+
+When using the *:Disassemble* or *:DisassembleFull* commands for the first
+time in a buffer, the configuration prompt will be displayed. The commands are
+pre-populated with basic compilation and objdump commands.
+
+You can edit those commands; they will be stored in the buffer variables for
+later use.
+
+If you want to edit the configuration for an already configured buffer, you
+can call the *:DisassembleConfig* command; the configuration prompt will be
+displayed, with the previous configuration pre-populated.
+
+It's also possible to set the compilation and objdump commands in the top of
+the file. When running the *:DisassembleConfig* command, those will be loaded
+as default (instead of the ones by default in the plugin). The search of the
+commands is done in the 10 first lines of the current file; the
+*:DisassembleConfig* function search for the tag 'compile:' and 'objdump:', and
+store those values as default values for the current buffer.
+
+>
+  /*
+   * compile: gcc test.c -o test -g -lm -fopenmp -lgmp
+   * objdump: objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble test
+   */
+  #include <stdlib.h>
+  ...
+<
 
 COMMANDS                                        *disassemble-commands*
 
@@ -31,11 +68,17 @@ There commands are local to the buffer in which they work.
                         a new buffer. This new buffer is set to 'readonly'
                         with 'filetype' set to 'asm' by default.
 
+                                                *:DisassembleConfig*
 :DisassembleConfig      Configure the compilation and objdump export for the
                         current buffer. This configuration is stored in a *b:*
-                        variable, hence is done per buffer.
+                        variable, hence is done per buffer. This function is
+                        automatically called the first time the |Disassemble|
+                        or the |DisassembleFull| functions are called in a
+                        buffer.
                         
-:DisassembleFocus       Focus and move the cursor to the popup window.
+                                                *:DisassembleFocus*
+:DisassembleFocus       Focus and move the cursor to the popup window. The popup
+                        window is not closed automatically on cursor move.
                         
 ABOUT                                           *disassemble-about*
 
