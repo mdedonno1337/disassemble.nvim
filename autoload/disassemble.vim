@@ -238,7 +238,7 @@ function! s:searchCurrentLine() abort
       echohl WarningMsg
       echomsg "this is line not found in the asm file ... ? contact the maintainer with an example of this situation"
       echohl None
-      return 1
+      return [-1, -1]
     endif
   endwhile
 
@@ -278,6 +278,9 @@ function! disassemble#Disassemble()
   endif
 
   let [l:pos_current_line_in_asm, l:pos_next_line_in_asm] = s:searchCurrentLine()
+  if l:pos_current_line_in_asm == -1
+    return 1
+  endif
 
   " Only select the current chunk of asm
   let b:objdump_asm_output = b:objdump_asm_output[l:pos_current_line_in_asm:l:pos_next_line_in_asm - 1]
@@ -320,6 +323,9 @@ function! disassemble#DisassembleFull() abort
   endif
 
   let [l:pos_current_line_in_asm, l:pos_next_line_in_asm] = s:searchCurrentLine()
+  if l:pos_current_line_in_asm == -1
+    return 1
+  endif
 
   " Create or reuse the last buffer
   if !get(b:, "buffer_full_asm", v:false)
