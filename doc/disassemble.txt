@@ -20,7 +20,58 @@ file. This default behaviour requires a compiler on the system, but can be
 disabled with the `let g:disassemble_enable_compilation=v:false` command in
 your vimrc configuration.
 
-CONFIGURATION
+CONFIGURATION                                   *disassemble-configuration*
+
+                                                *disassemble-plugin-options*
+Plugin options~
+
+This plugin has multiple configuration options, mainly to change default
+compilation and asm code extraction commands, but also on general behaviours.
+
+                                                *g:disassemble_focus_on_second_call*
+g:disassemble_focus_on_second_call
+                        Focus and move the cursor to the popup if calling the
+                        |:Disassemble| or |:DisassembleFull| command again.
+                        This is usefull to focus the asm code by running twice
+                        the main binding. Take a boolean value; the default
+                        value is set to |v:false|. 
+
+                                                *g:disassemble_enable_compilation*
+g:disassemble_enable_compilation
+                        Enable the compilation done by this plugin. If
+                        enabled, this plugin will ask and use the complation
+                        commands to compile the binary as needed (if the ELF
+                        file does not exists or if the source code is newer
+                        that the ELF file). Take a boolean value; the default
+                        value is set to |v:true|.
+                                        
+                                                *g:disassemble_default_compilation_command*
+g:disassemble_default_compilation_command
+                        Set the default compilation command. This string will
+                        be treated as raw vim command at buffer-configuration
+                        time; this allows you to put raw vimscript instruction
+                        in the string as follows:
+
+>
+  let g:disassemble_default_binary_file = 'expand("%:r")'
+
+  let g:disassemble_default_objdump_command = '"objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")'
+
+  let g:disassemble_default_compilation_command = 'printf( "gcc %s -o %s -g", expand("%"), expand("%:r") )'
+<
+
+                        In those examples, the `expand("%s")` instructions are
+                        not evaluated on load, but only by the `execute`
+                        instruction in the |:DisassembleConfig| function. To
+                        allows those configuration options to work, you have
+                        to be aware of the escape of quotes; in those
+                        examples, the main quote is a simple quote, and the
+                        internal quotes are double; you have to escape
+                        correctly the inner-quotes as needed to have a single
+                        string at the end in the variable.
+
+                                                *disassemble-compilation-configuration*
+Compilation configuration~
 
 The configuration of the plugin is done per buffer (you can have a different
 configuration for each file open). The compilation and objdump options are
@@ -41,13 +92,14 @@ It's also possible to set the compilation and objdump commands in the top of
 the file. When running the |:DisassembleConfig| command, those will be loaded
 as default (instead of the ones by default in the plugin). The search of the
 commands is done in the 10 first lines of the current file; the
-|:DisassembleConfig| function search for the tag 'compile:' and 'objdump:', and
-store those values as default values for the current buffer.
-
+|:DisassembleConfig| function search for the tag 'compile:', 'objdump:' and
+'binary_file:', and store those values as default values for the current
+buffer.
 >
   /*
    * compile: gcc test.c -o test -g -lm -fopenmp -lgmp
    * objdump: objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble test
+   * binary_file: test
    */
   #include <stdlib.h>
   ...
