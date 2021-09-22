@@ -2,8 +2,13 @@
 " Configuration
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:disassemble_focus_on_second_call = get(g:, "disassemble_focus_on_second_call", v:false)
-let g:disassemble_enable_compilation = get(g:, "disassemble_enable_compilation", v:true)
+if !exists("g:disassemble_focus_on_second_call")
+  let g:disassemble_focus_on_second_call = v:false
+endif
+
+if !exists("g:disassemble_enable_compilation")
+  let g:disassemble_enable_compilation = v:true
+endif
 
 if !exists("g:disassemble_default_compilation_command")
   let g:disassemble_default_compilation_command = 'printf( "gcc %s -o %s -g", expand("%"), expand("%:r") )'
