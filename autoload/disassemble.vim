@@ -18,6 +18,10 @@ if !exists("g:disassemble_default_objdump_command")
   let g:disassemble_default_objdump_command = '"objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")'
 endif
 
+if !exists("g:disassemble_default_binary_file")
+  let g:disassemble_default_binary_file = 'expand("%:r")'
+endif
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Configuration functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -47,11 +51,13 @@ function! s:setConfiguration() abort
   " Get the default commands from the global namespace
   execute("let l:default_compilation_command = " . g:disassemble_default_compilation_command)
   execute("let l:default_objdump_command = " .  g:disassemble_default_objdump_command)
+  execute("let l:default_binary_file = " . g:disassemble_default_binary_file)
   
   " Set the default values for the compilation and objdump commands
   let b:disassemble_config = get( b:, "disassemble_config", {
         \ "compilation": l:default_compilation_command,
-        \ "objdump": l:default_objdump_command
+        \ "objdump": l:default_objdump_command,
+        \ "binary_file": l:default_binary_file
         \ } )
 
   " Try to search a compilation command in the first 10 lines of the file
@@ -64,6 +70,12 @@ function! s:setConfiguration() abort
   let [l:matched_line, l:matched_start, l:matched_ends] = matchstrpos(getline(1, 10), "objdump: ")[1:3]
   if l:matched_line != -1
     let b:disassemble_config["objdump"] = getline(l:matched_line + 1)[l:matched_ends:]
+  endif
+  
+  " Try to search a binary file name in the first 10 lines of the file
+  let [l:matched_line, l:matched_start, l:matched_ends] = matchstrpos(getline(1, 10), "binary_file: ")[1:3]
+  if l:matched_line != -1
+    let b:disassemble_config["binary_file"] = getline(l:matched_line + 1)[l:matched_ends:]
   endif
   
   " Ask the user for the compilation and objdump extraction commands
@@ -147,10 +159,10 @@ endfunction
 
 function! s:get_objdump() abort
   " Check the presence of the ELF file
-  if !filereadable(expand("%:r"))
+  if !filereadable(b:disassemble_config["binary_file"])
     if !b:enable_compilation
       echohl WarningMsg
-      echomsg "the file '" . expand("%:r") . "' is not readable"
+      echomsg "the file '" . b:disassemble_config["binary_file"] . "' is not readable"
       echohl None
       return 1
     else
@@ -161,10 +173,10 @@ function! s:get_objdump() abort
   endif
 
   " Check if the binary file has debug informations
-  let b:has_debug_info = system("file " . expand("%:r"))
+  let b:has_debug_info = system("file " . b:disassemble_config["binary_file"])
   if match(b:has_debug_info, "with debug_info") == -1
     echohl WarningMsg
-    echomsg "the file '" . expand("%:r") . "' does not have debug information"
+    echomsg "the file '" . b:disassemble_config["binary_file"] . "' does not have debug information"
     echohl None
     return 1
   endif
@@ -304,7 +316,7 @@ function! disassemble#DisassembleFull() abort
   " Create or reuse the last buffer
   if !get(b:, "buffer_full_asm", v:false)
     let b:buffer_full_asm = nvim_create_buf(v:true, v:true)
-    call nvim_buf_set_name(b:buffer_full_asm, "[Disassembled] " . expand("%:r"))
+    call nvim_buf_set_name(b:buffer_full_asm, "[Disassembled] " . b:disassemble_config["binary_file"])
   else
     call nvim_buf_set_option(b:buffer_full_asm, "readonly", v:false)
   endif
