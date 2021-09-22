@@ -70,7 +70,20 @@ g:disassemble_default_compilation_command
                         correctly the inner-quotes as needed to have a single
                         string at the end in the variable.
 
-                                                *disassemble-compilation-configuration*
+                                                *g:disassemble_configuration_extension*
+g:disassemble_configuration_extension
+                        This variables stores the configuration for the
+                        compiler, disassembler and binary file name for the
+                        current file. This extension is added to the name of
+                        the current file with the extention (for the file
+                        `test.c` and this variable set to `disconfig`, the
+                        configuration file is by default `test.c.disconfig`).
+                        
+>
+    let g:disassemble_configuration_extension = "disconfig"
+<
+
+                                                *g:disassemble-compilation-configuration*
 Compilation configuration~
 
 The configuration of the plugin is done per buffer (you can have a different

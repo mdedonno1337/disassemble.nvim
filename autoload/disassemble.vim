@@ -22,6 +22,10 @@ if !exists("g:disassemble_default_binary_file")
   let g:disassemble_default_binary_file = 'expand("%:r")'
 endif
 
+if !exists("g:disassemble_configuration_extension")
+  let g:disassemble_configuration_extension = "disconfig"
+endif
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Configuration functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -43,7 +47,13 @@ function! disassemble#Config() abort
   call s:setConfiguration()
 endfunction
 
-function! s:try_parse_configuration(lines, target_search, target_config) abort
+function! s:try_parse_configuration_lines(lines_with_potential_config) abort
+  call s:try_parse_configuration_single_target(a:lines_with_potential_config, "compile: ", "compilation")
+  call s:try_parse_configuration_single_target(a:lines_with_potential_config, "objdump: ", "objdump")
+  call s:try_parse_configuration_single_target(a:lines_with_potential_config, "binary_file: ", "binary_file")
+endfunction
+
+function! s:try_parse_configuration_single_target(lines, target_search, target_config) abort
   let l:match = matchstrpos(a:lines, a:target_search)
   if l:match[1] != -1
     let b:disassemble_config[a:target_config] = a:lines[l:match[1]][l:match[3]:]
@@ -67,10 +77,14 @@ function! s:setConfiguration() abort
         \ "binary_file": l:default_binary_file
         \ } )
 
-  " Try to load the configuration from the source code file itself
-  call s:try_parse_configuration(getline(1,10), "compile: ", "compilation")
-  call s:try_parse_configuration(getline(1,10), "objdump: ", "objdump")
-  call s:try_parse_configuration(getline(1,10), "binary_file: ", "binary_file")
+  " Try to parse the configuration file
+  let l:config_file = printf("%s.%s", expand("%"), g:disassemble_configuration_extension)
+  if filereadable(l:config_file)
+    call s:try_parse_configuration_lines(readfile(l:config_file))
+  endif
+
+  " Try to parse the start of the current file for configuration
+  call s:try_parse_configuration_lines(getline(1,10))
 
   " Ask the user for the compilation and objdump extraction commands
   if b:enable_compilation
