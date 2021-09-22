@@ -43,6 +43,13 @@ function! disassemble#Config() abort
   call s:setConfiguration()
 endfunction
 
+function! s:try_parse_configuration(lines, target_search, target_config) abort
+  let l:match = matchstrpos(a:lines, a:target_search)
+  if l:match[1] != -1
+    let b:disassemble_config[a:target_config] = a:lines[l:match[1]][l:match[3]:]
+  endif
+endfunction
+
 function! s:setConfiguration() abort
   " Create the variables to store the temp files
   let b:asm_tmp_file = get(b:, "asm_tmp_file", tempname())
@@ -60,24 +67,11 @@ function! s:setConfiguration() abort
         \ "binary_file": l:default_binary_file
         \ } )
 
-  " Try to search a compilation command in the first 10 lines of the file
-  let [l:matched_line, l:matched_start, l:matched_ends] = matchstrpos(getline(1, 10), "compile: ")[1:3]
-  if l:matched_line != -1
-    let b:disassemble_config["compilation"] = getline(l:matched_line + 1)[l:matched_ends:]
-  endif
+  " Try to load the configuration from the source code file itself
+  call s:try_parse_configuration(getline(1,10), "compile: ", "compilation")
+  call s:try_parse_configuration(getline(1,10), "objdump: ", "objdump")
+  call s:try_parse_configuration(getline(1,10), "binary_file: ", "binary_file")
 
-  " Try to search a objdump command in the first 10 lines of the file
-  let [l:matched_line, l:matched_start, l:matched_ends] = matchstrpos(getline(1, 10), "objdump: ")[1:3]
-  if l:matched_line != -1
-    let b:disassemble_config["objdump"] = getline(l:matched_line + 1)[l:matched_ends:]
-  endif
-  
-  " Try to search a binary file name in the first 10 lines of the file
-  let [l:matched_line, l:matched_start, l:matched_ends] = matchstrpos(getline(1, 10), "binary_file: ")[1:3]
-  if l:matched_line != -1
-    let b:disassemble_config["binary_file"] = getline(l:matched_line + 1)[l:matched_ends:]
-  endif
-  
   " Ask the user for the compilation and objdump extraction commands
   if b:enable_compilation
     let b:disassemble_config["compilation"] = input("compilation command> ", b:disassemble_config["compilation"])
