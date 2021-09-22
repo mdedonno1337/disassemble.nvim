@@ -5,6 +5,14 @@
 let g:disassemble_focus_on_second_call = get(g:, "disassemble_focus_on_second_call", v:false)
 let g:disassemble_enable_compilation = get(g:, "disassemble_enable_compilation", v:true)
 
+if !exists("g:disassemble_default_compilation_command")
+  let g:disassemble_default_compilation_command = 'printf( "gcc %s -o %s -g", expand("%"), expand("%:r") )'
+endif
+
+if !exists("g:disassemble_default_objdump_command")
+  let g:disassemble_default_objdump_command = '"objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")'
+endif
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Configuration functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -31,9 +39,10 @@ function! s:setConfiguration() abort
   let b:asm_tmp_file = get(b:, "asm_tmp_file", tempname())
   let b:error_tmp_file = get(b:, "error_tmp_file", tempname())
   
-  let l:default_compilation_command = "gcc " . expand("%") . " -o " . expand("%:r") . " -g"
-  let l:default_objdump_command = "objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")
-
+  " Get the default commands from the global namespace
+  execute("let l:default_compilation_command = " . g:disassemble_default_compilation_command)
+  execute("let l:default_objdump_command = " .  g:disassemble_default_objdump_command)
+  
   " Set the default values for the compilation and objdump commands
   let b:disassemble_config = get( b:, "disassemble_config", {
         \ "compilation": l:default_compilation_command,
