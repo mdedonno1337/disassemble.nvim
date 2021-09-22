@@ -259,6 +259,13 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! disassemble#Disassemble()
+  " Close the current window if we are already in a popup buffer and want to
+  " get a popup, which make no sense in this context
+  if get(b:, "disassemble_this_is_a_popup_buffer", v:false)
+    silent! call nvim_win_close(0, v:true)
+    return 0
+  endif
+  
   " Load the configuration for this buffer
   call s:getConfig()
 
@@ -305,6 +312,7 @@ function! disassemble#Disassemble()
 
   call nvim_buf_set_lines(l:buf, 0, l:height, v:false, b:objdump_asm_output)
   call nvim_buf_set_option(l:buf, "filetype", "asm")
+  call nvim_buf_set_var(l:buf, "disassemble_this_is_a_popup_buffer", v:true)
   call nvim_win_set_cursor(b:disassemble_popup_window_id, [1, 0])
 
   augroup disassembleOnCursorMoveGroup
