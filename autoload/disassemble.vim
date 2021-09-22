@@ -30,7 +30,7 @@ endif
 " Configuration functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:getConfig() abort
+function! s:getConfig()
   " Create the variable to store the window id
   let b:disassemble_popup_window_id = get(b:, "disassemble_popup_window_id", v:false)
 
@@ -43,24 +43,24 @@ function! s:getConfig() abort
   endif
 endfunction
 
-function! disassemble#Config() abort
+function! disassemble#Config()
   call s:setConfiguration()
 endfunction
 
-function! s:try_parse_configuration_lines(lines_with_potential_config) abort
+function! s:try_parse_configuration_lines(lines_with_potential_config)
   call s:try_parse_configuration_single_target(a:lines_with_potential_config, "compile: ", "compilation")
   call s:try_parse_configuration_single_target(a:lines_with_potential_config, "objdump: ", "objdump")
   call s:try_parse_configuration_single_target(a:lines_with_potential_config, "binary_file: ", "binary_file")
 endfunction
 
-function! s:try_parse_configuration_single_target(lines, target_search, target_config) abort
+function! s:try_parse_configuration_single_target(lines, target_search, target_config)
   let l:match = matchstrpos(a:lines, a:target_search)
   if l:match[1] != -1
     let b:disassemble_config[a:target_config] = a:lines[l:match[1]][l:match[3]:]
   endif
 endfunction
 
-function! s:setConfiguration() abort
+function! s:setConfiguration()
   " Create the variables to store the temp files
   let b:asm_tmp_file = get(b:, "asm_tmp_file", tempname())
   let b:error_tmp_file = get(b:, "error_tmp_file", tempname())
@@ -106,7 +106,7 @@ endfunction
 " Compilation function
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:do_compile() abort
+function! s:do_compile()
   let l:compilation_result = system(b:disassemble_config["compilation"])
   if v:shell_error
     echohl WarningMsg
@@ -135,7 +135,7 @@ endfunction
 " Objectdump extraction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:do_objdump() abort
+function! s:do_objdump()
   " Reset the output variables
   let b:compilation_error = v:false
   let b:objdump_asm_output = v:false
@@ -165,7 +165,7 @@ function! s:do_objdump() abort
   return 0
 endfunction
 
-function! s:get_objdump() abort
+function! s:get_objdump()
   " Check the presence of the ELF file
   if !filereadable(b:disassemble_config["binary_file"])
     if !b:enable_compilation
@@ -222,7 +222,7 @@ endfunction
 " Data processing
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:searchCurrentLine() abort
+function! s:searchCurrentLine()
   " Search the current line
   let l:current_line_checked = line(".")
   let l:pos_current_line_in_asm = ["", -1]
@@ -321,7 +321,7 @@ function! disassemble#Disassemble()
   augroup END
 endfunction
 
-function! disassemble#DisassembleFull() abort
+function! disassemble#DisassembleFull()
   " Load the configuration for this buffer
   call s:getConfig()
 
@@ -358,7 +358,7 @@ function! disassemble#DisassembleFull() abort
 
 endfunction
 
-function! disassemble#Close() abort
+function! disassemble#Close()
   if get(b:,"auto_close", v:true)
     if get(b:, "disassemble_popup_window_id", v:false)
       silent! call nvim_win_close(b:disassemble_popup_window_id, v:true)
@@ -374,7 +374,7 @@ function! disassemble#Close() abort
   endif
 endfunction
 
-function! disassemble#Focus() abort
+function! disassemble#Focus()
   let b:auto_close = v:false
   if get(b:, "disassemble_popup_window_id", v:false)
     silent! call nvim_set_current_win(b:disassemble_popup_window_id)
