@@ -26,7 +26,7 @@ The configuration of the plugin is done per buffer (you can have a different
 configuration for each file open). The compilation and objdump options are
 asked when using for the first time the plugin functions.
 
-When using the *:Disassemble* or *:DisassembleFull* commands for the first
+When using the |:Disassemble| or |:DisassembleFull| commands for the first
 time in a buffer, the configuration prompt will be displayed. The commands are
 pre-populated with basic compilation and objdump commands.
 
@@ -34,14 +34,14 @@ You can edit those commands; they will be stored in the buffer variables for
 later use.
 
 If you want to edit the configuration for an already configured buffer, you
-can call the *:DisassembleConfig* command; the configuration prompt will be
+can call the |:DisassembleConfig| command; the configuration prompt will be
 displayed, with the previous configuration pre-populated.
 
 It's also possible to set the compilation and objdump commands in the top of
-the file. When running the *:DisassembleConfig* command, those will be loaded
+the file. When running the |:DisassembleConfig| command, those will be loaded
 as default (instead of the ones by default in the plugin). The search of the
 commands is done in the 10 first lines of the current file; the
-*:DisassembleConfig* function search for the tag 'compile:' and 'objdump:', and
+|:DisassembleConfig| function search for the tag 'compile:' and 'objdump:', and
 store those values as default values for the current buffer.
 
 >
@@ -72,8 +72,8 @@ There commands are local to the buffer in which they work.
 :DisassembleConfig      Configure the compilation and objdump export for the
                         current buffer. This configuration is stored in a *b:*
                         variable, hence is done per buffer. This function is
-                        automatically called the first time the |Disassemble|
-                        or the |DisassembleFull| functions are called in a
+                        automatically called the first time the |:Disassemble|
+                        or the |:DisassembleFull| functions are called in a
                         buffer.
                         
                                                 *:DisassembleFocus*
