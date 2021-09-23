@@ -15,7 +15,7 @@ if !exists("g:disassemble_default_compilation_command")
 endif
 
 if !exists("g:disassemble_default_objdump_command")
-  let g:disassemble_default_objdump_command = '"objdump --demangle --line-numbers --file-headers --file-offsets --source --no-show-raw-insn --disassemble " . expand("%:r")'
+  let g:disassemble_default_objdump_command = '"objdump --demangle --line-numbers --file-headers --file-offsets --source-comment --no-show-raw-insn --disassemble " . expand("%:r")'
 endif
 
 if !exists("g:disassemble_default_binary_file")
