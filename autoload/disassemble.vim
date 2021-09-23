@@ -26,6 +26,10 @@ if !exists("g:disassemble_configuration_extension")
   let g:disassemble_configuration_extension = "disconfig"
 endif
 
+if !exists("g:disassemble_autosave")
+  let g:disassemble_autosave = v:true
+endif
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Configuration functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -265,7 +269,11 @@ function! disassemble#Disassemble()
     silent! call nvim_win_close(0, v:true)
     return 0
   endif
-  
+
+  if g:disassemble_autosave
+    silent! write
+  endif
+
   " Load the configuration for this buffer
   call s:getConfig()
 
@@ -322,6 +330,10 @@ function! disassemble#Disassemble()
 endfunction
 
 function! disassemble#DisassembleFull()
+  if g:disassemble_autosave
+    silent! write
+  endif
+
   " Load the configuration for this buffer
   call s:getConfig()
 

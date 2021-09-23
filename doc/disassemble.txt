@@ -83,6 +83,12 @@ g:disassemble_configuration_extension
     let g:disassemble_configuration_extension = "disconfig"
 <
 
+                                                *g:disassemble_autosave*
+g:disassemble_autosave
+                        This enable the automatic save of the buffer before
+                        compiling/dumping the asm code. By default, this is
+                        set to `v:true`.
+                        
                                                 *g:disassemble-compilation-configuration*
 Compilation configuration~
 
