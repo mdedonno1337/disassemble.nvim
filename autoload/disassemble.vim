@@ -106,6 +106,20 @@ function! s:setConfiguration()
   return
 endfunction
 
+function! disassemble#SaveConfig() abort
+  call s:getConfig()
+  
+  let l:config_file = printf("%s.%s", expand("%"), g:disassemble_configuration_extension)
+  let l:output_configuration = []
+  
+  call add(l:output_configuration, printf("compile: %s", b:disassemble_config["compilation"]))
+  call add(l:output_configuration, printf("objdump: %s", b:disassemble_config["objdump"]))
+  call add(l:output_configuration, printf("binary_file: %s", b:disassemble_config["binary_file"]))
+  
+  call writefile(l:output_configuration, l:config_file)
+  echomsg "Disassemble configuration saved to '" . l:config_file . "'"
+endfunction
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Compilation function
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

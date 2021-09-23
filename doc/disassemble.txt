@@ -147,6 +147,10 @@ There commands are local to the buffer in which they work.
                         or the |:DisassembleFull| functions are called in a
                         buffer.
                         
+                                                *:DisassembleSaveConfig*
+:DisassembleSaveConfig  Save the current configuration to the `.disconfig` (or
+                        otherwise configured) configuration file.
+                        
                                                 *:DisassembleFocus*
 :DisassembleFocus       Focus and move the cursor to the popup window. The popup
                         window is not closed automatically on cursor move.
