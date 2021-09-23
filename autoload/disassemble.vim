@@ -233,7 +233,7 @@ function! s:searchCurrentLine()
   let l:lines_searched = 0
 
   while l:pos_current_line_in_asm[1] < 0
-    let l:pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":" . l:current_line_checked . '\(\s*(discriminator \d*)\)*$')
+    let l:pos_current_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:t") . ":" . l:current_line_checked . '\(\s*(discriminator \d*)\)*$')
 
     let l:current_line_checked += 1
 
@@ -247,7 +247,7 @@ function! s:searchCurrentLine()
   endwhile
 
   " Search the next occurence of the filename
-  let l:pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:p") . ":", l:pos_current_line_in_asm[1] + 1)
+  let l:pos_next_line_in_asm = matchstrpos(b:objdump_asm_output, expand("%:t") . ":", l:pos_current_line_in_asm[1] + 1)
 
   " If not found, it's probably because this code block is at the end of a
   " section. This will search the start of the next section.
