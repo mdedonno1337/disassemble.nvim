@@ -60,7 +60,7 @@ g:disassemble_default_compilation_command
   let g:disassemble_default_compilation_command = 'printf( "gcc %s -o %s -g", expand("%"), expand("%:r") )'
 <
 
-                        In those examples, the `expand("%s")` instructions are
+                        In those examples, the `expand("%")` instructions are
                         not evaluated on load, but only by the `execute`
                         instruction in the |:DisassembleConfig| function. To
                         allows those configuration options to work, you have
